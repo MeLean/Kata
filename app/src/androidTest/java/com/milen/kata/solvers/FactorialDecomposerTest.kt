@@ -7,7 +7,6 @@ import org.junit.Before
 
 class FactorialDecomposerTest {
 
-
     private lateinit var tested: FactorialDecomposer
 
     @Before
