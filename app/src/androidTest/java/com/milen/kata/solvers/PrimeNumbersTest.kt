@@ -4,13 +4,13 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.Before
 
-class PrimeDecomposerTest {
+class PrimeNumbersTest {
 
-    private lateinit var tested: PrimeDecomposer
+    private lateinit var tested: PrimeNumbers
 
     @Before
     fun setUp() {
-        tested = PrimeDecomposer()
+        tested = PrimeNumbers()
     }
 
     @Test
