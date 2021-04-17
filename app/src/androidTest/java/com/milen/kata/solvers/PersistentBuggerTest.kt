@@ -34,7 +34,8 @@ class PersistentBuggerTest{
     }
 
     private fun doTest(n: Int, exp: Int) {
-        val result = tested.persistence(n)
+        //val result = tested.persistence(n)
+        val result = tested.shortPersistence(n)
         assertEquals(exp, result)
     }
 }

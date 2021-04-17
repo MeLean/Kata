@@ -14,6 +14,10 @@ class PersistentBugger{
         return counter
     }
 
+    fun shortPersistence(num: Int) : Int = generateSequence(num) {
+        it.toString().map(Character::getNumericValue).reduce { mult, element -> mult * element }
+    }.takeWhile { it > 9 }.count()
+
     private fun multiply(num: Int): Int {
         var multiplyRes = 1
         val numStr = num.toString()
