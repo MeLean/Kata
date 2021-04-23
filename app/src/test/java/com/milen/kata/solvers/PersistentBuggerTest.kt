@@ -14,22 +14,22 @@ class PersistentBuggerTest{
     }
 
     @Test
-    fun test1() {
-       doTest(39,3)
-    }
-
-    @Test
-    fun test2() {
+    fun `input 4 expected 0`() {
         doTest(4,0)
     }
 
     @Test
-    fun test3() {
+    fun `input 25 expected 2`() {
         doTest(25,2)
     }
 
     @Test
-    fun test5() {
+    fun `input 39 expected 3`() {
+       doTest(39,3)
+    }
+
+    @Test
+    fun `input 999 expected 4`() {
         doTest(999,4)
     }
 

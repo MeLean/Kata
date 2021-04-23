@@ -14,17 +14,17 @@ class ThreeFiveMultiplierTest{
     }
 
     @Test
-    fun test1() {
+    fun `input 10 expected 23`() {
         doTest(10, 23)
     }
 
     @Test
-    fun test2() {
+    fun `input 20 expected 78`() {
         doTest(20, 78)
     }
 
     @Test
-    fun test3() {
+    fun `input 200 expected 9168`() {
         doTest(200, 9168)
     }
 

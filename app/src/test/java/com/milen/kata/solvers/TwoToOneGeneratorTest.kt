@@ -14,17 +14,17 @@ class TwoToOneGeneratorTest {
     }
 
     @Test
-    fun test1() {
+    fun `first string is shorter than second`() {
         assertEquals("aehrsty", tested.longest("aretheyhere", "yestheyarehere"))
     }
 
     @Test
-    fun test2() {
+    fun `first string is longer than second`() {
         assertEquals("abcdefghilnoprstu", tested.longest("loopingisfunbutdangerous", "lessdangerousthancoding"))
     }
 
     @Test
-    fun test3() {
-        assertEquals("acefghilmnoprstuy", tested.longest("inmanylanguages", "theresapairoffunctions"))
+    fun `first string is equal to second`() {
+        assertEquals("acefghilnoprstuvy", tested.longest("nylanguagesloveisinthe", "theresapairoffunctions"))
     }
 }

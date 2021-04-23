@@ -14,15 +14,15 @@ class CatDogYearCalculatorTest{
     }
 
     @Test
-    fun one_year() {
+    fun `one year`() {
         assertArrayEquals(arrayOf(1, 15, 15), tested.calculateYears(1));
     }
 
-    @Test fun two_years() {
+    @Test fun  `two years`() {
         assertArrayEquals(arrayOf(2, 24, 24), tested.calculateYears(2));
     }
 
-    @Test fun ten_years() {
+    @Test fun `ten years`() {
         assertArrayEquals(arrayOf(10, 56, 64), tested.calculateYears(10));
     }
 }

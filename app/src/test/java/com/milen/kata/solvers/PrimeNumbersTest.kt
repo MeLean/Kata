@@ -14,13 +14,18 @@ class PrimeNumbersTest {
     }
 
     @Test
-    fun test1() {
+    fun `input small number`() {
         doTest(1024, "(2**10)")
     }
 
     @Test
-    fun test2() {
+    fun `input big number`() {
         doTest(7775460, "(2**2)(3**3)(5)(7)(11**2)(17)")
+    }
+
+    @Test
+    fun `input 0 expected empty string`() {
+        doTest(0, "")
     }
 
     private fun doTest(n: Int, exp: String) {

@@ -13,15 +13,15 @@ class MumblingTest{
     }
 
     @Test
-    fun test1(){
+    fun `input string start with lower case`(){
         doTest(
-            "ZpglnRxqenU" ,
+            "zpglnRxqenU" ,
             "Z-Pp-Ggg-Llll-Nnnnn-Rrrrrr-Xxxxxxx-Qqqqqqqq-Eeeeeeeee-Nnnnnnnnnn-Uuuuuuuuuuu")
 
     }
 
     @Test
-    fun test2(){
+    fun `input string start with upper case`(){
         doTest(
             "NyffsGeyylB" ,
             "N-Yy-Fff-Ffff-Sssss-Gggggg-Eeeeeee-Yyyyyyyy-Yyyyyyyyy-Llllllllll-Bbbbbbbbbbb")
@@ -29,7 +29,7 @@ class MumblingTest{
     }
 
     @Test
-    fun test3(){
+    fun `empty string input`(){
         doTest(
             "" ,
             "")

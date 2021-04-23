@@ -13,32 +13,32 @@ class DuplicatesCounterTest{
     }
 
     @Test
-    fun test0(){
+    fun `input with no duplicates`(){
         doTest("abcde", 0)
     }
 
     @Test
-    fun test1(){
+    fun `input with one couple duplicate`(){
         doTest("abcdea", 1)
     }
 
     @Test
-    fun test2(){
+    fun `input with more then 2 same duplicates`(){
         doTest("indivisibility", 1)
     }
 
     @Test
-    fun test3(){
+    fun `input with uppercase and lowercase duplicates`(){
         doTest("Aaghtyuosbb", 2)
     }
 
     @Test
-    fun test4(){
+    fun `input with uppercase and lowercase duplicates at the end`(){
         doTest("baghtyuosB", 1)
     }
 
     @Test
-    fun test5(){
+    fun `input with big amount of duplicates`(){
         doTest("dA" + "c".repeat(10) + "b".repeat(100) + "a".repeat(1000) , 3)
     }
 
