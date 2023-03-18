@@ -1,3 +1,16 @@
 <resources>
     <string name="app_name">Kata</string>
+    <string name="run_scenario_one">Run one</string>
+    <string name="run_scenario_two">Run two</string>
+    <string name="run_scenario_three">Run three</string>
+    <string name="run_scenario_four">Run four</string>
+    <string name="run_scenario_five">Run five</string>
+    <string name="coroutines_experiments">Coroutines experiments</string>
+    <string name="run_cancel_scenario_one">Run cancel one</string>
+    <string name="run_cancel_scenario_two">Run cancel two</string>
+    <string name="run_cancel_scenario_three">Run cancel three</string>
+    <string name="run_cancel_scenario_four">Run cancel four</string>
+    <string name="run_cancel_scenario_five">Run cancel five</string>
+    <string name="run_cancel_scenario_six">Run cancel six</string>
+    <string name="look_at_console">Look at console!</string>
 </resources>
