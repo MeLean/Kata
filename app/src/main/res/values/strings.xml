@@ -13,4 +13,13 @@
     <string name="run_cancel_scenario_five">Run cancel five</string>
     <string name="run_cancel_scenario_six">Run cancel six</string>
     <string name="look_at_console">Look at console!</string>
+    <string name="start_service">Start service</string>
+    <string name="foreground_service_experiment">Foreground service experiment</string>
+    <string name="foreground_service_started">Foreground service started</string>
+    <string name="counting_service_name">My Counting Service</string>
+    <string name="counter_">Counter: %1$d</string>
+    <string name="notification_permission_required">You should give notification permission to run the service!</string>
+    <string name="channel_name">My Notification channel name</string>
+    <string name="channel_description">Channel for receiving notifications</string>
+    <string name="open_app">Open application</string>
 </resources>

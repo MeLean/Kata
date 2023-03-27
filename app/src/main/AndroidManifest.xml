@@ -2,6 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.milen.kata">
 
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -10,18 +13,23 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Kata">
         <activity
-            android:name=".experiments.CoroutinesExperimentActivity"
-            android:label="@string/coroutines_experiments"
+            android:name=".experiments.foregroundservice.ForegroundServiceExperimentActivity"
             android:exported="false" />
-        <activity android:name=".MainActivity"
-            android:exported="true"
-            >
+        <activity
+            android:name=".experiments.CoroutinesExperimentActivity"
+            android:exported="false"
+            android:label="@string/coroutines_experiments" />
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <service android:name=".experiments.foregroundservice.MyCountingService" />
     </application>
 
 </manifest>
