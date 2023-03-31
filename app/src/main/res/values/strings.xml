@@ -14,12 +14,21 @@
     <string name="run_cancel_scenario_six">Run cancel six</string>
     <string name="look_at_console">Look at console!</string>
     <string name="start_service">Start service</string>
+    <string name="stop_service">Stop Service</string>
     <string name="foreground_service_experiment">Foreground service experiment</string>
     <string name="foreground_service_started">Foreground service started</string>
+    <string name="foreground_service_stopped">Foreground service has been stopped</string>
     <string name="counting_service_name">My Counting Service</string>
     <string name="measured_label_">Measured: %1$d -> %2$s</string>
     <string name="notification_permission_required">You should give notification permission to run the service!</string>
     <string name="channel_name">My Notification channel name</string>
     <string name="channel_description">Channel for receiving notifications</string>
     <string name="open_app">Open application</string>
+    <string name="fake_server_experiment">Fake Server experiment</string>
+    <string name="make_success_request">Make Success Request</string>
+    <string name="make_success_request_v2">Make Success Request V2</string>
+    <string name="make_request_error">Make error request</string>
+    <string name="terminate_server">Terminate Server</string>
+    <string name="kill_app">Kill Application</string>
+
 </resources>

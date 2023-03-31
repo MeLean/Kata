@@ -7,7 +7,7 @@
     tools:context=".experiments.foregroundservice.ForegroundServiceExperimentActivity">
 
     <Button
-        android:id="@+id/btn_start_service"
+        android:id="@+id/btn_toggle_service"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"

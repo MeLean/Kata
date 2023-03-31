@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import com.milen.kata.experiments.CoroutinesExperimentActivity
+import com.milen.kata.experiments.fakeserver.FakeServerActivity
 import com.milen.kata.experiments.foregroundservice.ForegroundServiceExperimentActivity
 
 class MainActivity : AppCompatActivity() {
@@ -12,12 +13,20 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        setClickListeners()
+    }
+
+    private fun setClickListeners() {
         findViewById<Button>(R.id.btn_coroutines_experiments).setOnClickListener {
             startActivity(Intent(this, CoroutinesExperimentActivity::class.java))
         }
 
         findViewById<Button>(R.id.btn_foreground_service_experiments).setOnClickListener {
             startActivity(Intent(this, ForegroundServiceExperimentActivity::class.java))
+        }
+
+        findViewById<Button>(R.id.btn_fake_server_experiments).setOnClickListener {
+            startActivity(Intent(this, FakeServerActivity::class.java))
         }
     }
 }

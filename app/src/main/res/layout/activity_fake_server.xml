@@ -4,35 +4,36 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".experiments.fakeserver.FakeServerActivity">
 
     <Button
-        android:id="@+id/btn_coroutines_experiments"
+        android:id="@+id/make_success_request"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
-        android:text="@string/coroutines_experiments"
+        android:text="@string/make_success_request"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/btn_foreground_service_experiments"
+        android:id="@+id/make_success_request_v2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="@string/foreground_service_experiment"
+        android:text="@string/make_success_request_v2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btn_coroutines_experiments" />
+        app:layout_constraintTop_toBottomOf="@+id/make_success_request" />
 
     <Button
-        android:id="@+id/btn_fake_server_experiments"
+        android:id="@+id/make_request_error"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="@string/fake_server_experiment"
+        android:text="@string/make_request_error"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btn_foreground_service_experiments" />
+        app:layout_constraintTop_toBottomOf="@+id/make_success_request_v2" />
+    
 </androidx.constraintlayout.widget.ConstraintLayout>

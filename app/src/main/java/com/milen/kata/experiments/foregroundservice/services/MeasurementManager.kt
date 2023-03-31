@@ -81,9 +81,9 @@ class MeasurementManager {
 
 
     companion object {
-        private const val TWO_G = "TWO_G"
-        private const val THREE_G = "THREE_G"
-        private const val FOUR_G = "FOUR_G"
-        private const val FIVE_G = "FIVE_G"
+        private const val TWO_G = "GSM"
+        private const val THREE_G = "3G"
+        private const val FOUR_G = "4G"
+        private const val FIVE_G = "5G"
     }
 }
