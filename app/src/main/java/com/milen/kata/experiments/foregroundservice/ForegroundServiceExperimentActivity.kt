@@ -16,6 +16,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import com.milen.kata.R
+import com.milen.kata.experiments.foregroundservice.services.MyCountingService
 
 class ForegroundServiceExperimentActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -25,11 +26,21 @@ class ForegroundServiceExperimentActivity : AppCompatActivity() {
     private val permissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
             when (isGranted) {
-                true -> startServiceAndFinish()
+                true -> tryToStartService()
                 else -> showNotificationPermissionAlert()
             }
         }
 
+    private val networkReadingPermissions = arrayOf(
+        Manifest.permission.READ_PHONE_STATE,
+        Manifest.permission.ACCESS_NETWORK_STATE
+    )
+
+    private val networkReadingPermissionsLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) {
+            tryToStartService()
+        }
+    
     private lateinit var startServiceButton: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,7 +54,7 @@ class ForegroundServiceExperimentActivity : AppCompatActivity() {
                 ) {
                     permissionLauncher.launch(notifyPermissionStr)
                 } else {
-                    startServiceAndFinish()
+                    tryToStartService()
                 }
             }
         }
@@ -67,21 +78,29 @@ class ForegroundServiceExperimentActivity : AppCompatActivity() {
         )
     }
 
-    private fun startServiceAndFinish(): Unit =
+    private fun tryToStartService(): Unit =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && areNotificationsDisabled()) {
             showNotificationPermissionAlert()
         } else {
-            startPermittedService()
+            startNotificationPermittedService()
         }
 
-    private fun startPermittedService() {
-        MyCountingService.startForeground(context = this).also {
-            showToast(getString(R.string.foreground_service_started))
-            finishAffinity()
+    private fun startNotificationPermittedService() {
+        for (permission in networkReadingPermissions) {
+            if (ContextCompat.checkSelfPermission(this, permission)
+                != PackageManager.PERMISSION_GRANTED
+            ) {
+                networkReadingPermissionsLauncher.launch(permission)
+                return
+            }
         }
+
+        MyCountingService.startForeground(context = this)
+            .also {
+                showToast(getString(R.string.foreground_service_started))
+            }
     }
 }
-
 private fun Context.showToast(msg: String): Unit =
     Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
 

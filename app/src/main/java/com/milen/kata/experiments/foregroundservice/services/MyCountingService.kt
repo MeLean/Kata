@@ -1,4 +1,4 @@
-package com.milen.kata.experiments.foregroundservice
+package com.milen.kata.experiments.foregroundservice.services
 
 import android.app.*
 import android.content.Context
@@ -9,20 +9,26 @@ import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.milen.kata.R
+import com.milen.kata.experiments.foregroundservice.CHANNEL_ID
+import com.milen.kata.experiments.foregroundservice.UNKNOWN
+import com.milen.kata.experiments.foregroundservice.WIFI
+import com.milen.kata.experiments.foregroundservice.data.MeasurementTask
 import kotlinx.coroutines.*
 
-
-class MyCountingService : Service() {
+class MyCountingService(
+    private val measurementManager: MeasurementManager = MeasurementManager()
+) : Service() {
     private lateinit var notificationManager: NotificationManagerCompat
     private var counter = 0
     private var isServiceRunning = false
 
     private val scope = CoroutineScope(Dispatchers.Default)
 
+    private val measurementTask = MeasurementTask()
+
     override fun onCreate() {
         super.onCreate()
         notificationManager = NotificationManagerCompat.from(this)
-        createNotification()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int =
@@ -35,19 +41,21 @@ class MyCountingService : Service() {
 
             isServiceRunning.not() -> {
                 isServiceRunning = true
-                startForeground(NOTIFICATION_ID, createNotification())
+                val measurement = doMeasurementRecord()
+                startForeground(NOTIFICATION_ID, createNotification(measurement))
 
                 scope.launch {
                     while (isServiceRunning) {
                         delay(timeMillis = DEFAULT_WAITING_MILLISECONDS)
-                        counter++
-
                         if (isActive) {
                             withContext(Dispatchers.Main) {
-                                notificationManager.notify(
-                                    NOTIFICATION_ID,
-                                    createNotification()
-                                )
+                                doMeasurementRecord().takeIf { it.contains(UNKNOWN).not() }?.let {
+                                    counter++
+                                    notificationManager.notify(
+                                        NOTIFICATION_ID,
+                                        createNotification(it)
+                                    )
+                                }
                             }
                         }
                     }
@@ -57,6 +65,19 @@ class MyCountingService : Service() {
             }
 
             else -> START_STICKY
+        }
+
+    private fun doMeasurementRecord(): String =
+        with(measurementManager) {
+            val networkType = getNetworkType(this@MyCountingService)
+            val networkSpeedTypeStr = networkType.takeIf { it != WIFI }?.let {
+                ": ${getNetworkSpeedType(this@MyCountingService)}"
+            }.orEmpty()
+
+            "$networkType$networkSpeedTypeStr"
+                .also {
+                    measurementTask.measurementData.add(it)
+                }
         }
 
 
@@ -69,7 +90,8 @@ class MyCountingService : Service() {
 
     override fun onBind(intent: Intent?): IBinder? = null
 
-    private fun createNotification(): Notification {
+    private fun createNotification(measurement: String): Notification {
+
         notificationManager.createNotificationChannelIfNeeded(
             name = getString(R.string.channel_name),
             descriptionText = getString(R.string.channel_description)
@@ -83,7 +105,7 @@ class MyCountingService : Service() {
 
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle(getString(R.string.counting_service_name))
-            .setContentText(getString(R.string.counter_, counter))
+            .setContentText(getString(R.string.measured_label_, counter, measurement))
             .setSmallIcon(R.drawable.ic_update)
             .setOnlyAlertOnce(true)
             .addAction(cancelAction)
@@ -131,6 +153,7 @@ class MyCountingService : Service() {
         }
     }
 }
+
 
 private fun NotificationManagerCompat.createNotificationChannelIfNeeded(
     name: String,
