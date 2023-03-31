@@ -13,6 +13,7 @@ import com.milen.kata.experiments.foregroundservice.CHANNEL_ID
 import com.milen.kata.experiments.foregroundservice.UNKNOWN
 import com.milen.kata.experiments.foregroundservice.WIFI
 import com.milen.kata.experiments.foregroundservice.data.MeasurementTask
+import com.milen.kata.utils.DebugLogger
 import kotlinx.coroutines.*
 
 class MyCountingService(
@@ -50,12 +51,15 @@ class MyCountingService(
                         if (isActive) {
                             withContext(Dispatchers.Main) {
                                 doMeasurementRecord().takeIf { it.contains(UNKNOWN).not() }?.let {
+                                    measurementTask.measurementData.add(it)
+                                    DebugLogger.log("counter: $counter : $it")
+
                                     counter++
                                     notificationManager.notify(
                                         NOTIFICATION_ID,
                                         createNotification(it)
                                     )
-                                }
+                                } ?: DebugLogger.log("counter: $counter : UNKNOWN measurement!")
                             }
                         }
                     }
@@ -75,14 +79,17 @@ class MyCountingService(
             }.orEmpty()
 
             "$networkType$networkSpeedTypeStr"
-                .also {
-                    measurementTask.measurementData.add(it)
-                }
         }
 
 
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        super.onTaskRemoved(rootIntent)
+        DebugLogger.log("${javaClass.simpleName}.onTaskRemoved() called!")
+    }
+
     override fun onDestroy() {
         super.onDestroy()
+        DebugLogger.log("${javaClass.simpleName}.onDestroy() called!")
         stopService()
         // todo save data
         scope.cancel()
@@ -136,7 +143,7 @@ class MyCountingService(
     companion object {
         private const val NOTIFICATION_ID = 777
         private const val DEFAULT_WAITING_MILLISECONDS = 1000L // 1 second
-        private const val ACTION_STOP_SERVICE = "com.milen.kata.STOP_SERVICE"
+        internal const val ACTION_STOP_SERVICE = "com.milen.kata.STOP_SERVICE"
         private const val REQUEST_CODE = 0
 
         fun startForeground(context: Context, extras: Bundle? = null) {

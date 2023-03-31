@@ -11,12 +11,13 @@ import android.widget.Button
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import com.milen.kata.R
 import com.milen.kata.experiments.foregroundservice.services.MyCountingService
+import com.milen.kata.utils.isServiceRunning
+import com.milen.kata.utils.showAlert
 
 class ForegroundServiceExperimentActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -25,6 +26,7 @@ class ForegroundServiceExperimentActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private val permissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            // for sake of experiment
             when (isGranted) {
                 true -> tryToStartService()
                 else -> showNotificationPermissionAlert()
@@ -40,15 +42,27 @@ class ForegroundServiceExperimentActivity : AppCompatActivity() {
         registerForActivityResult(ActivityResultContracts.RequestPermission()) {
             tryToStartService()
         }
-    
-    private lateinit var startServiceButton: Button
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_foreground_service_experiment)
+    }
 
-        startServiceButton = findViewById<Button>(R.id.btn_start_service).also {
-            it.setOnClickListener {
+    override fun onResume() {
+        super.onResume()
+        //for the sake of experiment
+        when (isServiceRunning(MyCountingService::class.java.canonicalName.orEmpty())) {
+            true -> applyStopServiceUi()
+            else -> applyStartServiceUi()
+        }
+    }
+
+    private fun applyStartServiceUi() {
+        findViewById<Button>(R.id.btn_toggle_service).apply {
+            text = getString(R.string.start_service)
+            setOnClickListener {
+                // for the sake of the experiment
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
                     isPermissionNotGranted(notifyPermissionStr)
                 ) {
@@ -56,6 +70,25 @@ class ForegroundServiceExperimentActivity : AppCompatActivity() {
                 } else {
                     tryToStartService()
                 }
+            }
+        }
+    }
+
+    private fun applyStopServiceUi() {
+        findViewById<Button>(R.id.btn_toggle_service).apply {
+            text = getString(R.string.stop_service)
+            setOnClickListener {
+                Intent(this@ForegroundServiceExperimentActivity, MyCountingService::class.java)
+                    .apply {
+                        action = MyCountingService.ACTION_STOP_SERVICE
+                        startService(this)
+                    }
+
+                showAlert(
+                    msg = getString(R.string.foreground_service_stopped),
+                    iconRes = R.drawable.ic_cancel,
+                    onOkClicked = { applyStartServiceUi() }
+                )
             }
         }
     }
@@ -96,9 +129,11 @@ class ForegroundServiceExperimentActivity : AppCompatActivity() {
         }
 
         MyCountingService.startForeground(context = this)
-            .also {
-                showToast(getString(R.string.foreground_service_started))
-            }
+        showAlert(
+            msg = getString(R.string.foreground_service_started),
+            iconRes = R.drawable.ic_update,
+            onOkClicked = { applyStopServiceUi() }
+        )
     }
 }
 private fun Context.showToast(msg: String): Unit =
@@ -107,29 +142,6 @@ private fun Context.showToast(msg: String): Unit =
 @RequiresApi(Build.VERSION_CODES.O)
 private fun Context.areNotificationsDisabled(): Boolean =
     NotificationManagerCompat.from(this).areNotificationsEnabled().not()
-
-
-private fun Context.showAlert(
-    title: String = getString(android.R.string.dialog_alert_title),
-    msg: String,
-    onOkClicked: () -> Unit,
-    onCancelClicked: () -> Unit
-): Unit = AlertDialog.Builder(this)
-    .apply {
-        setTitle(title)
-        setMessage(msg)
-        setIcon(R.drawable.ic_attention)
-        setPositiveButton(getString(android.R.string.ok)) { dialog, _ ->
-            onOkClicked()
-            dialog.dismiss()
-        }
-        setNegativeButton(getString(android.R.string.cancel)) { dialog, _ ->
-            onCancelClicked()
-            dialog.dismiss()
-        }
-    }
-    .create()
-    .show()
 
 private fun Context.isPermissionNotGranted(permission: String): Boolean =
     (ContextCompat.checkSelfPermission(
