@@ -8,7 +8,6 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.widget.Button
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
@@ -35,7 +34,9 @@ class ForegroundServiceExperimentActivity : AppCompatActivity() {
 
     private val networkReadingPermissions = arrayOf(
         Manifest.permission.READ_PHONE_STATE,
-        Manifest.permission.ACCESS_NETWORK_STATE
+        Manifest.permission.ACCESS_NETWORK_STATE,
+        Manifest.permission.ACCESS_FINE_LOCATION,
+        Manifest.permission.ACCESS_COARSE_LOCATION
     )
 
     private val networkReadingPermissionsLauncher =
@@ -93,7 +94,6 @@ class ForegroundServiceExperimentActivity : AppCompatActivity() {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun openNotificationSettingsScreen(): Unit =
         with(Intent().apply {
             action = Settings.ACTION_APP_NOTIFICATION_SETTINGS
@@ -102,7 +102,6 @@ class ForegroundServiceExperimentActivity : AppCompatActivity() {
             startActivity(this)
         }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun showNotificationPermissionAlert() {
         showAlert(
             msg = getString(R.string.notification_permission_required),
@@ -112,7 +111,7 @@ class ForegroundServiceExperimentActivity : AppCompatActivity() {
     }
 
     private fun tryToStartService(): Unit =
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && areNotificationsDisabled()) {
+        if (areNotificationsDisabled()) {
             showNotificationPermissionAlert()
         } else {
             startNotificationPermittedService()
@@ -136,10 +135,7 @@ class ForegroundServiceExperimentActivity : AppCompatActivity() {
         )
     }
 }
-private fun Context.showToast(msg: String): Unit =
-    Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
 
-@RequiresApi(Build.VERSION_CODES.O)
 private fun Context.areNotificationsDisabled(): Boolean =
     NotificationManagerCompat.from(this).areNotificationsEnabled().not()
 
