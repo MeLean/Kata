@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     package="com.milen.kata">
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -9,6 +8,8 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <application
         android:allowBackup="true"
@@ -19,8 +20,7 @@
         android:networkSecurityConfig="@xml/network_security_config"
         android:theme="@style/Theme.Kata"
         android:supportsRtl="true"
-        android:usesCleartextTraffic="true"
-        tools:targetApi="n">
+        android:usesCleartextTraffic="true">
         <activity
             android:name=".experiments.fakeserver.FakeServerActivity"
             android:exported="false" />

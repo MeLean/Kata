@@ -3,23 +3,23 @@ package com.milen.kata.experiments.foregroundservice.services
 import android.app.*
 import android.content.Context
 import android.content.Intent
+import android.net.ConnectivityManager
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
+import android.telephony.TelephonyManager
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.milen.kata.R
 import com.milen.kata.experiments.foregroundservice.CHANNEL_ID
-import com.milen.kata.experiments.foregroundservice.UNKNOWN
-import com.milen.kata.experiments.foregroundservice.WIFI
+import com.milen.kata.experiments.foregroundservice.data.MeasurementEntity
 import com.milen.kata.experiments.foregroundservice.data.MeasurementTask
 import com.milen.kata.utils.DebugLogger
 import kotlinx.coroutines.*
 
-class MyCountingService(
-    private val measurementManager: MeasurementManager = MeasurementManager()
-) : Service() {
+class MyCountingService : Service() {
     private lateinit var notificationManager: NotificationManagerCompat
+    private lateinit var networkMeasurementService: NetworkMeasurementService
     private var counter = 0
     private var isServiceRunning = false
 
@@ -30,6 +30,10 @@ class MyCountingService(
     override fun onCreate() {
         super.onCreate()
         notificationManager = NotificationManagerCompat.from(this)
+        networkMeasurementService = NetworkMeasurementService(
+            getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager,
+            getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
+        )
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int =
@@ -42,24 +46,35 @@ class MyCountingService(
 
             isServiceRunning.not() -> {
                 isServiceRunning = true
-                val measurement = doMeasurementRecord()
-                startForeground(NOTIFICATION_ID, createNotification(measurement))
+
+                doMeasurementRecord().run {
+                    startForeground(
+                        NOTIFICATION_ID, createNotification(
+                            networkType,
+                            networkSpeedType
+                        )
+                    )
+                }
+
 
                 scope.launch {
                     while (isServiceRunning) {
                         delay(timeMillis = DEFAULT_WAITING_MILLISECONDS)
                         if (isActive) {
                             withContext(Dispatchers.Main) {
-                                doMeasurementRecord().takeIf { it.contains(UNKNOWN).not() }?.let {
-                                    measurementTask.measurementData.add(it)
-                                    DebugLogger.log("counter: $counter : $it")
+                                doMeasurementRecord().run {
+                                    measurementTask.measurementData.add(this)
+                                    DebugLogger.log("counter: $counter : $this")
 
                                     counter++
                                     notificationManager.notify(
                                         NOTIFICATION_ID,
-                                        createNotification(it)
+                                        createNotification(
+                                            networkType,
+                                            networkSpeedType
+                                        )
                                     )
-                                } ?: DebugLogger.log("counter: $counter : UNKNOWN measurement!")
+                                }
                             }
                         }
                     }
@@ -71,14 +86,48 @@ class MyCountingService(
             else -> START_STICKY
         }
 
-    private fun doMeasurementRecord(): String =
-        with(measurementManager) {
-            val networkType = getNetworkType(this@MyCountingService)
-            val networkSpeedTypeStr = networkType.takeIf { it != WIFI }?.let {
-                ": ${getNetworkSpeedType(this@MyCountingService)}"
-            }.orEmpty()
-
-            "$networkType$networkSpeedTypeStr"
+    private fun doMeasurementRecord(): MeasurementEntity =
+        with(networkMeasurementService) {
+            MeasurementEntity(
+                operatorName = getNetworkOperatorName(),
+                mcc = getMcc(),
+                mnc = getMnc(),
+                rPlmn = getPlmn(),
+                roam = getRoam(),
+                nodeBid = getNodeBId(),
+                lcid = getLcid(),
+                eci = getEci(),
+                tac = getTac(),
+                pci = getPci(),
+                networkSpeedType = getNetworkSpeedType(),
+                networkType = getNetworkType(),
+                frequency = getFrequency(),
+                rfcn = getRfcn(),
+                bWs = getBWs(),
+                bw = getCurrentBandwidth(),
+                bandIdentifier = getBandIdentifier(),
+                hasEndc = isEndcAvailable(),
+                sessionState = getSessionManagementState(),
+                rfcnEu = getRfcn(), //todo check if it is the same?
+                plci = getPci(), //todo check if it is the same?
+                rsrp = getRsrp(),
+                rsrq = getRsrq(),
+                rssi = getRssi(),
+                snr = getSnr(),
+                cqi = getCqi(),
+                tabn = getTabn(),
+                ul = getUl(),
+                dl = getDl(),
+                ssrsrp = getSsrsrp(),
+                ssrsrq = getSsrsrq(),
+                csirsrp = getCsirsrp(),
+                csirsrq = getCsirsrq(),
+                csirssi = getCsirssi(),
+                nrrssi = getNrrssi(),
+                csisinr = getNrrssi(), // todo check if they are the same
+                sssinr = getSssinr(),
+                csisinratio = getCsisinratio()
+            )
         }
 
 
@@ -97,7 +146,7 @@ class MyCountingService(
 
     override fun onBind(intent: Intent?): IBinder? = null
 
-    private fun createNotification(measurement: String): Notification {
+    private fun createNotification(networkType: String, networkSpeedType: String): Notification {
 
         notificationManager.createNotificationChannelIfNeeded(
             name = getString(R.string.channel_name),
@@ -112,7 +161,13 @@ class MyCountingService(
 
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle(getString(R.string.counting_service_name))
-            .setContentText(getString(R.string.measured_label_, counter, measurement))
+            .setContentText(
+                getString(
+                    R.string.measured_label_,
+                    counter,
+                    "$networkType: $networkSpeedType"
+                )
+            )
             .setSmallIcon(R.drawable.ic_update)
             .setOnlyAlertOnce(true)
             .addAction(cancelAction)
@@ -142,7 +197,7 @@ class MyCountingService(
 
     companion object {
         private const val NOTIFICATION_ID = 777
-        private const val DEFAULT_WAITING_MILLISECONDS = 1000L // 1 second
+        private const val DEFAULT_WAITING_MILLISECONDS = 2000L // 2 seconds
         internal const val ACTION_STOP_SERVICE = "com.milen.kata.STOP_SERVICE"
         private const val REQUEST_CODE = 0
 
@@ -150,12 +205,7 @@ class MyCountingService(
             Intent(context, MyCountingService::class.java).apply {
                 extras?.let { putExtras(it) }
             }.also {
-                when {
-                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ->
-                        context.startForegroundService(it)
-
-                    else -> context.startService(it)
-                }
+                context.startForegroundService(it)
             }
         }
     }
@@ -166,15 +216,13 @@ private fun NotificationManagerCompat.createNotificationChannelIfNeeded(
     name: String,
     descriptionText: String,
 ) {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        createNotificationChannel(
-            NotificationChannel(
-                CHANNEL_ID,
-                name,
-                NotificationManager.IMPORTANCE_DEFAULT
-            ).apply {
-                description = descriptionText
-                enableVibration(false)
-            })
-    }
+    createNotificationChannel(
+        NotificationChannel(
+            CHANNEL_ID,
+            name,
+            NotificationManager.IMPORTANCE_DEFAULT
+        ).apply {
+            description = descriptionText
+            enableVibration(false)
+        })
 }
