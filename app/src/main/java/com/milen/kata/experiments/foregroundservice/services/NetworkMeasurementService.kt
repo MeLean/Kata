@@ -210,7 +210,7 @@ class NetworkMeasurementService(
             ?.toString() ?: UNKNOWN
 
     // todo thick to concatenate in the model building
-    fun getPlmn(): String = "${getMcc()}${getMnc()}"
+    fun getPlmn(): String = "${getRoam()}${getMcc()}${getMnc()}"
 
     fun getLcid(): String =
         (telephonyManager.cellLocation as? GsmCellLocation)?.let {
@@ -232,9 +232,11 @@ class NetworkMeasurementService(
 
     fun getNetworkOperatorName(): String = telephonyManager.networkOperatorName
 
-    fun getMcc(): String = telephonyManager.networkOperator.substring(0, 3)
+    fun getMcc(): String =
+        telephonyManager.networkOperator.takeIf { it.length > 3 }?.substring(0, 3) ?: UNKNOWN
 
-    fun getMnc(): String = telephonyManager.networkOperator.substring(3)
+    fun getMnc(): String =
+        telephonyManager.networkOperator.takeIf { it.length > 3 }?.substring(3) ?: UNKNOWN
 
     fun getNetworkSpeedType(): String =
         with(telephonyManager) {
